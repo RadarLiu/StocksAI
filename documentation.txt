@@ -1,0 +1,3 @@
+https://pypi.org/project/yfinance/
+https://github.com/ranaroussi/yfinance
+
