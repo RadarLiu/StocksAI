@@ -20,12 +20,6 @@ print(hist.loc["2020-04-30"]["Open"])
 
 
 
-
-
-
-
-
-
 # # show actions (dividends, splits)
 # msft.actions
 
