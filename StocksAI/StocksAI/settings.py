@@ -100,6 +100,26 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'stocksai_logger': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': 'stocksai.log',
+            'maxBytes': 1024*1024*15, # 15MB rotation
+            'backupCount': 10,
+        },
+    },
+    'loggers': {
+        'stocksai': {  # name of logger
+            'handlers': ['stocksai_logger',],
+            'level': 'DEBUG',
+        },
+    },
+}
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
