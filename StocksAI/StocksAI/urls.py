@@ -18,6 +18,6 @@ from django.urls import include, path
 
 
 urlpatterns = [
-  path('admin/', admin.site.urls),
-  path('index/', include('stocksai.urls')),  # dev only
+  path('admin/', admin.site.urls),  # Built-in admin site.
+  path('', include('stocksai.urls')),  # All other urls.
 ]

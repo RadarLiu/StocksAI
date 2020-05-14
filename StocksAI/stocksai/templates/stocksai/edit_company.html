@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Edit Company &middot; StocksAI</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+  <div class="container">
+    {% if companies %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Company Code</th>
+          <th>Industry</th>
+          <th></th>
+        </tr>
+      </thead>
+      {% for c in companies %}
+      <tbody>
+        <tr>
+          <td>{{c.code}}</td>
+          <td>{{c.industry}}</td>
+          <td><button type="button" class="btn btn-warning">Delete</button></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p>No company info available.</p>
+    {% endif %}
+  </div>
+
+</body>
+</html>

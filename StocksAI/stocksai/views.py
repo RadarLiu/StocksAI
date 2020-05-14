@@ -3,9 +3,10 @@ import yfinance as yf
 import datetime
 
 from django.db import IntegrityError
+from django.db.models import Max
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.db.models import Max
+from django.template import loader
 from datetime import date
 from datetime import datetime as dt
 from .models import StockCode, StockPrice, ServerState
@@ -84,3 +85,12 @@ def refresh_stock_prices():
 def clear_all_stock_prices(request):
   StockPrice.objects.all().delete()
   return HttpResponse("All stock prices deleted.")
+
+
+def edit_company(request):
+  companies = StockCode.objects.all()
+  template = loader.get_template('stocksai/edit_company.html')
+  context = {
+      'companies': companies,
+  }
+  return HttpResponse(template.render(context, request))
