@@ -10,6 +10,7 @@ from django.template import loader
 from datetime import date
 from datetime import datetime as dt
 from .models import StockCode, StockPrice, ServerState
+from .forms import *
 
 class ServerStateCache:
   last_update_date = date(2018, 12, 31)
@@ -89,8 +90,16 @@ def clear_all_stock_prices(request):
 
 def edit_company(request):
   companies = StockCode.objects.all()
-  template = loader.get_template('stocksai/edit_company.html')
+  template = loader.get_template("stocksai/edit_company.html")
   context = {
-      'companies': companies,
+      "companies": companies,
+      "add_company_form": AddCompanyForm(),
   }
   return HttpResponse(template.render(context, request))
+
+
+def add_company(request):
+  if request.method == 'POST':
+    form = AddCompanyForm(request.POST)
+    if form.is_valid():  # This line is required to generate cleaned_data.
+      return HttpResponse(form.cleaned_data["code"])
