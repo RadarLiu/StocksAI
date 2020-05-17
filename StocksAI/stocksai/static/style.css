@@ -1,0 +1,18 @@
+body {
+  padding-top: 20px;
+  /*background: white url("images/background_bright.jpg");*/
+}
+
+.controls {
+  margin-top: 10px;
+  margin-left: 10px;
+  border-radius: 2px 0 0 2px;
+  height: 32px;
+  outline: none;
+  box-shadow: 0 0px 0px rgba(0, 0, 0, 0.3);
+}
+
+.form-inline {
+  margin-top: 10px;
+  margin-left: 10px;
+}
