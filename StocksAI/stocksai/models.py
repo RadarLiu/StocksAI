@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 from datetime import date
 
 # Field type: https://docs.djangoproject.com/en/3.0/ref/models/fields/#model-field-types
@@ -26,3 +27,12 @@ class StockPrice(models.Model):
 
   def __str__(self):
     return str(self.code) + " | " + str(self.date) + " | " + str(self.price)
+
+
+class Profile(models.Model):
+  user = models.ForeignKey(User, on_delete=models.CASCADE)
+  registration_date = models.DateField()
+  cash_usd = models.FloatField()
+
+  def __str__(self):
+    return str(self.user.username) + " | " + str(self.registration_date) + " | " + str(self.cash_usd)

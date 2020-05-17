@@ -3,14 +3,16 @@ import yfinance as yf
 import datetime
 
 from django.db import IntegrityError
+from django.db import transaction
 from django.db.models import Max
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
 from django.template import loader
 from datetime import date
 from datetime import datetime as dt
-from .models import StockCode, StockPrice, ServerState
+from .models import StockCode, StockPrice, ServerState, Profile
 from .forms import *
 
 class ServerStateCache:
@@ -78,6 +80,7 @@ def refresh_stock_prices():
 
 
 # Helper function to save stock prices.
+@transaction.atomic
 def save_prices(data=None, stock_code=None):
   if data is None:
     return "data is None"
@@ -107,7 +110,7 @@ def clear_all_stock_prices(request):
   StockPrice.objects.all().delete()
   return HttpResponse("All stock prices deleted.")
 
-
+@transaction.atomic
 def edit_company(request):
   add_err = ""
   add_success = ""
@@ -150,7 +153,6 @@ def edit_company(request):
 
   # Render
   companies = StockCode.objects.all()
-  template = loader.get_template("stocksai/edit_company.html")
   context = {
       "companies": companies,
       "add_company_form": AddCompanyForm(),
@@ -158,6 +160,66 @@ def edit_company(request):
       "add_err": add_err,
       "del_success": del_success,
   }
-  return HttpResponse(template.render(context, request))
+  return render(request, "stocksai/edit_company.html", context)
 
 
+@transaction.atomic
+def register(request):
+  context = {}
+
+  if request.method == "GET":
+    context["form"] = RegistrationForm()
+    return render(request, "stocksai/register.html", context)
+
+  form = RegistrationForm(request.POST)
+  context["form"] = form
+  if not form.is_valid():
+      return render(request, "register.html", context)
+
+  user = User.objects.create_user(
+    username=form.cleaned_data["username"],
+    first_name=form.cleaned_data["first_name"],
+    last_name=form.cleaned_data["last_name"],
+    email=form.cleaned_data["email"],
+    password=form.cleaned_data["password"],
+  )
+  user.is_active = False
+  user.save()
+  token = default_token_generator.make_token(user)
+
+  email_body = """
+Welcome to StocksAI. Please click the link below to
+verify your email address and complete the registration of your account:
+
+http://%s%s
+""" % (request.get_host(),
+     reverse("confirm", args=(user.username, token)))
+
+  send_mail(subject="Verify your email address",
+            message=email_body,
+            from_email="chesterradar@yahoo.com",
+            recipient_list=[user.email])
+
+  profile = Profile(user=user, registration_date=date.today(), cash_usd = 10000.00)
+  profile.save()
+  context['email'] = form.cleaned_data['email']
+
+#  return render(request, 'needs-confirmation.html', context)
+
+
+@transaction.atomic
+def confirm_registration(request, username, token):
+  user = get_object_or_404(User, username=username)
+
+  # Send 404 error if token is invalid
+  if not default_token_generator.check_token(user, token):
+    return redirect(reverse('client_err_handler'))
+
+  # Otherwise token was valid, activate the user.
+  user.is_active = True
+  user.save()
+  return render(request, 'confirmed.html', {})
+
+
+def login(request):
+  pass
