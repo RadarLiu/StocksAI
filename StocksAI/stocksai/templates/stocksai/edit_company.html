@@ -9,17 +9,46 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+  <style>
+    body {
+      padding-top: 20px;
+    }
+    
+    .controls {
+      margin-top: 10px;
+      margin-left: 10px;
+      border-radius: 2px 0 0 2px;
+      height: 32px;
+      outline: none;
+      box-shadow: 0 0.2px 0.2px rgba(0, 0, 0, 0.3);
+    }
+
+    .errormsg {
+      color:"red";
+    }
+  </style>
 </head>
 
 <body>
 
   <div class="container">
     <form class="form-horizontal" method="POST" action="{% url 'add_company' %}">
-    {% csrf_token %}
-      {{ add_company_form }}
-      <input type="submit" value="Add">
+      {% csrf_token %}
+      <div class="form-inline">
+        <div class="control-group custom-control-inline">
+          <label class="col-form-label" for="new_company_code"> New Company Code </label>
+          <div class="controls">
+            {{ add_company_form.code }}
+          </div>
+        </div>
+        <input type="submit" value="Add" class="btn btn-info">
+        <p class="text-danger"> &nbsp &nbsp &nbsp {{ add_err }} </p>
+        <p class="text-success"> &nbsp &nbsp &nbsp {{ add_success }} </p>
+      </div>
     </form>
   </div>
+
+  <br>
 
   <div class="container">
     {% if companies %}
@@ -36,11 +65,19 @@
         <tr>
           <td>{{c.code}}</td>
           <td>{{c.industry}}</td>
-          <td><button type="button" class="btn btn-warning">Delete</button></td>
+          <td>
+            <form method="POST" action="{% url 'delete_company' %}" class="inline">
+              {% csrf_token %}
+              <input type="hidden" name="code" value={{c.code}}>
+              <button type="submit" name="del_btn" class="btn btn-warning">Delete</button>
+            </form>
+          </td>
         </tr>
       {% endfor %}
       </tbody>
     </table>
+    <p class="text-success"> &nbsp &nbsp &nbsp {{ del_success }} </p>
+    <p class="text-danger"> &nbsp &nbsp &nbsp {{ del_err }} </p>
     {% else %}
       <p>No company info available.</p>
     {% endif %}

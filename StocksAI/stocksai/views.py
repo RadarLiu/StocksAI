@@ -5,7 +5,8 @@ import datetime
 from django.db import IntegrityError
 from django.db.models import Max
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.template import loader
 from datetime import date
 from datetime import datetime as dt
@@ -65,13 +66,7 @@ def refresh_stock_prices():
 
       for code in code_list:
         stock_code = StockCode.objects.get(code=code)
-        for d, p in data.loc[:, "Close"].loc[:, code].iteritems():
-          close_price = data.loc[:, "Close"].loc[:, code].loc[d]
-          price = StockPrice(code=stock_code, date=d, price=close_price)
-          try:
-            price.save()
-          except IntegrityError:
-            pass # Ignore duplicate data
+        save_prices(data=data, code=stock_code)
 
       # Update state
       o = ServerState.objects.get(state_id=0)
@@ -82,6 +77,21 @@ def refresh_stock_prices():
   return None
 
 
+# Helper function to save stock prices.
+def save_prices(data=None, code=None):
+  if data is None:
+    return "data is None"
+  if code == "":
+    return "code is None"
+  for d, p in data.loc[:, "Close"].loc[:, code].iteritems():
+    close_price = data.loc[:, "Close"].loc[:, code].loc[d]
+    price = StockPrice(code=stock_code, date=d, price=close_price)
+    try:
+      price.save()
+    except IntegrityError:
+      pass # Ignore duplicate data
+
+
 # Dev only
 def clear_all_stock_prices(request):
   StockPrice.objects.all().delete()
@@ -89,17 +99,52 @@ def clear_all_stock_prices(request):
 
 
 def edit_company(request):
+  add_err = ""
+  add_success = ""
+  del_err = ""
+  del_success = ""
+
+  print(request.method, request.path)
+
+  if request.method == "POST" and "add_company" in request.path:
+    form = AddCompanyForm(request.POST)
+    if form.is_valid():  # This line is required to generate cleaned_data.
+      code = form.cleaned_data["code"].upper()
+      if StockCode.objects.filter(code=code).exists():
+        add_err = "Company code %s already exists!" % code
+      else:
+        data = yf.download(code, start="2019-01-01", end=dt.now().strftime("%Y-%m-%d"))  # end date is not inclusive.
+        if data.size == 0:
+          add_err = "No data available for company code: %s" % code
+        else:
+          stock_code = StockCode(code=code)
+          try:
+            stock_code.save()
+            save_prices(data=data, code=stock_code)
+          except Exception as e:
+            add_err = "Adding failed: %s" % str(e)
+    else:
+      add_err = "Invalid Company Code!"
+
+  if request.method == "POST" and "delete_company" in request.path:
+    form = DelCompanyForm(request.POST)
+    if form.is_valid():
+      code = form.cleaned_data["code"].upper()
+      try:
+        StockCode.objects.filter(code=code).delete()
+        StockPrice.objects.filter(code=code).delete()
+      except Exception as e:
+        del_err = "Deletion failed: %s" % str(e)
+
   companies = StockCode.objects.all()
   template = loader.get_template("stocksai/edit_company.html")
   context = {
       "companies": companies,
       "add_company_form": AddCompanyForm(),
+      "add_success": add_success,
+      "add_err": add_err,
+      "del_success": del_success,
   }
   return HttpResponse(template.render(context, request))
 
 
-def add_company(request):
-  if request.method == 'POST':
-    form = AddCompanyForm(request.POST)
-    if form.is_valid():  # This line is required to generate cleaned_data.
-      return HttpResponse(form.cleaned_data["code"])
