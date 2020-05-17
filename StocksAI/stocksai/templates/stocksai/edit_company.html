@@ -41,6 +41,12 @@
             {{ add_company_form.code }}
           </div>
         </div>
+        <div class="control-group custom-control-inline">
+          <label class="col-form-label" for="new_company_code"> Industry </label>
+          <div class="controls">
+            {{ add_company_form.industry }}
+          </div>
+        </div>
         <input type="submit" value="Add" class="btn btn-info">
         <p class="text-danger"> &nbsp &nbsp &nbsp {{ add_err }} </p>
         <p class="text-success"> &nbsp &nbsp &nbsp {{ add_success }} </p>
@@ -76,11 +82,11 @@
       {% endfor %}
       </tbody>
     </table>
-    <p class="text-success"> &nbsp &nbsp &nbsp {{ del_success }} </p>
-    <p class="text-danger"> &nbsp &nbsp &nbsp {{ del_err }} </p>
     {% else %}
       <p>No company info available.</p>
     {% endif %}
+    <p class="text-success"> &nbsp &nbsp &nbsp &nbsp {{ del_success }} </p>
+    <p class="text-danger"> &nbsp &nbsp &nbsp &nbsp {{ del_err }} </p>
   </div>
 
 </body>

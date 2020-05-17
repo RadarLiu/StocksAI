@@ -58,7 +58,7 @@ def refresh_stock_prices():
       # Update latest stock prices for all companies.
       code_list = [i.code for i in StockCode.objects.all()]
       codes = " ".join(code_list)
-      start_date = (server_state_cache.last_update_date + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+      start_date = (server_state_cache.last_update_date).strftime("%Y-%m-%d")
       end_date = dt.now().strftime("%Y-%m-%d")  # Not inclusive.
 
       # Remote API call.
@@ -66,7 +66,7 @@ def refresh_stock_prices():
 
       for code in code_list:
         stock_code = StockCode.objects.get(code=code)
-        save_prices(data=data, code=stock_code)
+        save_prices(data=data, stock_code=stock_code)
 
       # Update state
       o = ServerState.objects.get(state_id=0)
@@ -78,13 +78,23 @@ def refresh_stock_prices():
 
 
 # Helper function to save stock prices.
-def save_prices(data=None, code=None):
+def save_prices(data=None, stock_code=None):
   if data is None:
     return "data is None"
-  if code == "":
+  if stock_code is None:
     return "code is None"
-  for d, p in data.loc[:, "Close"].loc[:, code].iteritems():
-    close_price = data.loc[:, "Close"].loc[:, code].loc[d]
+  f = data.loc[:, "Close"]
+  try:
+    f = f.loc[:, stock_code.code]
+  except Exception:
+    f = data.loc[:, "Close"] # yfinance API does not return the "code" dimension when there is only one company.
+  for d, p in f.iteritems():
+    cp = data.loc[:, "Close"]
+    try:
+      cp = cp.loc[:, stock_code.code]
+    except Exception:
+      cp = data.loc[:, "Close"]
+    close_price = cp.loc[d]
     price = StockPrice(code=stock_code, date=d, price=close_price)
     try:
       price.save()
@@ -110,6 +120,7 @@ def edit_company(request):
     form = AddCompanyForm(request.POST)
     if form.is_valid():  # This line is required to generate cleaned_data.
       code = form.cleaned_data["code"].upper()
+      industry = form.cleaned_data["industry"]
       if StockCode.objects.filter(code=code).exists():
         add_err = "Company code %s already exists!" % code
       else:
@@ -117,12 +128,12 @@ def edit_company(request):
         if data.size == 0:
           add_err = "No data available for company code: %s" % code
         else:
-          stock_code = StockCode(code=code)
-          try:
-            stock_code.save()
-            save_prices(data=data, code=stock_code)
-          except Exception as e:
-            add_err = "Adding failed: %s" % str(e)
+          stock_code = StockCode(code=code, industry=industry)
+          #try:
+          stock_code.save()
+          save_prices(data=data, stock_code=stock_code)
+          #except Exception as e:
+          #  add_err = "Adding failed: %s" % str(e)
     else:
       add_err = "Invalid Company Code!"
 
@@ -135,7 +146,9 @@ def edit_company(request):
         StockPrice.objects.filter(code=code).delete()
       except Exception as e:
         del_err = "Deletion failed: %s" % str(e)
+      del_success = "%s deleted!" % code
 
+  # Render
   companies = StockCode.objects.all()
   template = loader.get_template("stocksai/edit_company.html")
   context = {
