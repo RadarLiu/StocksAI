@@ -5,9 +5,12 @@ import datetime
 from django.db import IntegrityError
 from django.db import transaction
 from django.db.models import Max
+from django.contrib.auth import logout
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
 from django.template import loader
 from datetime import date
@@ -174,7 +177,12 @@ def register(request):
   form = RegistrationForm(request.POST)
   context["form"] = form
   if not form.is_valid():
-      return render(request, "register.html", context)
+    return render(request, "stocksai/register.html", context)
+
+  # Corss-field validations that cannot be done in Django form.
+  if form.cleaned_data["password"] != form.cleaned_data["password_repeat"]:
+    context["t_errors"] = "Passwords did not match!"
+    return render(request, "stocksai/register.html", context)
 
   user = User.objects.create_user(
     username=form.cleaned_data["username"],
@@ -182,44 +190,16 @@ def register(request):
     last_name=form.cleaned_data["last_name"],
     email=form.cleaned_data["email"],
     password=form.cleaned_data["password"],
+    is_active=True,
   )
-  user.is_active = False
   user.save()
-  token = default_token_generator.make_token(user)
-
-  email_body = """
-Welcome to StocksAI. Please click the link below to
-verify your email address and complete the registration of your account:
-
-http://%s%s
-""" % (request.get_host(),
-     reverse("confirm", args=(user.username, token)))
-
-  send_mail(subject="Verify your email address",
-            message=email_body,
-            from_email="chesterradar@yahoo.com",
-            recipient_list=[user.email])
 
   profile = Profile(user=user, registration_date=date.today(), cash_usd = 10000.00)
   profile.save()
-  context['email'] = form.cleaned_data['email']
-
-#  return render(request, 'needs-confirmation.html', context)
+  return redirect(reverse("login"))
 
 
-@transaction.atomic
-def confirm_registration(request, username, token):
-  user = get_object_or_404(User, username=username)
-
-  # Send 404 error if token is invalid
-  if not default_token_generator.check_token(user, token):
-    return redirect(reverse('client_err_handler'))
-
-  # Otherwise token was valid, activate the user.
-  user.is_active = True
-  user.save()
-  return render(request, 'confirmed.html', {})
-
-
-def login(request):
-  pass
+@login_required
+def logout(request):
+  logout(request)
+  return redirect(reverse("login"))

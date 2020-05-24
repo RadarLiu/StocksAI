@@ -138,3 +138,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# For sending emails
+# EMAIL_HOST = 'smtp.mail.yahoo.com' #config.get('Email', 'Host')
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = '465' #config.get('Email', 'Port')
+# EMAIL_HOST_USER = 'chesterradar' #config.get('Email', 'User')
+# EMAIL_HOST_PASSWORD = '' #config.get('Email', 'Password')
+# EMAIL_USE_SSL = True

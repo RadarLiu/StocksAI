@@ -18,17 +18,17 @@
     {% csrf_token %}
     <fieldset>
       <div id="legend">
-        <legend class="">Register</legend><br>
+        <legend class="">&nbsp;&nbsp;&nbsp;&nbsp;Register</legend><br>
       </div>
       <div class="container">
-        <strong> <font color="red"> {{ registration_error }} </font> </strong>
+        <strong> <font color='red'> {{ t_errors }} </font> </strong>
         <div class="form-group row">
           <label class="col-sm-2 col-form-label" for="username">Username</label>
           <div class="col-sm-10">
             <div class="row">
               <div class="col-sm-3"> {{ form.username }} </div>
               <div class="col-sm-8 text-secondary"> Letters or numbers without spaces </div>
-              <div class="col-sm-3"> {{ form.username.errors }} </div>
+              <div class="col-sm-3"> <font color="red"> {{ form.username.errors }} </font> </div>
             </div>
           </div>
         </div>
@@ -38,7 +38,7 @@
             <div class="row">
               <div class="col-sm-3"> {{ form.password }} </div>
               <div class="col-sm-8 text-secondary"> At least 4 characters </div>
-              <div class="col-sm-3"> {{ form.password.errors }} </div>
+              <div class="col-sm-3"> <font color="red"> {{ form.password.errors }} </font> </div>
             </div>
           </div>
         </div>

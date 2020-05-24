@@ -6,7 +6,6 @@ from .models import StockPrice
 from .models import Profile
 
 
-admin.site.register(User)
 admin.site.register(ServerState)
 admin.site.register(StockCode)
 admin.site.register(StockPrice)

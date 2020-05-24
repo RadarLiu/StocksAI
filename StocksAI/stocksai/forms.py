@@ -24,7 +24,8 @@ class DelCompanyForm(forms.Form):
 class RegistrationForm(forms.Form):
   username = forms.CharField(max_length=40, required=True,
     validators=[RegexValidator(r"^[0-9a-zA-Z]*$",message="Enter only letters and numbers")])
-  email = forms.CharField(max_length=50, required=True)
+  email = forms.CharField(max_length=50, required=True,
+    validators=[RegexValidator(r"^.*@.*$",message="Email format error")])
   first_name = forms.CharField(max_length=30, label="First Name",
     validators=[RegexValidator(r"^[a-zA-Z]*$", message="Enter only letters")])
   last_name = forms.CharField(max_length=30, label="Last Name",
@@ -34,18 +35,18 @@ class RegistrationForm(forms.Form):
 
   def clean(self):
     cleaned_data = super(RegistrationForm, self).clean()
-
-    p1 = cleaned_data.get("password")
-    p2 = cleaned_data.get("password_repeat")
-    if p1 and p2 and p1 != p2:
-      raise forms.ValidationError("Passwords did not match!")
-    e = cleaned_data.get("email")
-    if e and not "@" in e:
-      raise forms.ValidationError("Email format error!")
     return cleaned_data
 
   def clean_username(self):
-    username = self.cleaned_data.get("username")
+    cleaned_data = super(RegistrationForm, self).clean()
+    username = cleaned_data.get("username")
     if User.objects.filter(username=username):
       raise forms.ValidationError("Username already exists!")
     return username
+
+  def clean_password(self):
+    cleaned_data = super(RegistrationForm, self).clean()
+    password = cleaned_data.get("password")
+    if len(password) < 4:
+      raise forms.ValidationError("Password too short!")
+    return password
