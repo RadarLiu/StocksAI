@@ -1,6 +1,6 @@
 from django.urls import path
 from django.conf.urls import include, url
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, LogoutView
 
 from . import views
 
@@ -12,7 +12,7 @@ urlpatterns = [
   path('delete_company/', views.edit_company, name='delete_company'),  # admin only.
   path('register/', views.register, name='register'),
   path('login/', LoginView.as_view(template_name='stocksai/login.html'), name='login'),
-  path('logout/', views.logout, name='logout'),
+  path('logout/', LogoutView.as_view(template_name='stocksai/logout.html'), name='logout'),
   path('clear_all_stock_prices/', views.clear_all_stock_prices, name='clear_all_stock_prices'),  # dev only
   #url(r'^.*', views.handler, name='handler'),
 ]

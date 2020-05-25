@@ -33,10 +33,13 @@ class RegistrationForm(forms.Form):
   password = forms.CharField(max_length=20, label="Password", widget=forms.PasswordInput())
   password_repeat = forms.CharField(max_length=20, label="Confirm password", widget=forms.PasswordInput())
 
+  # Do not do cross-field validation here! (Do it in views.py)
+  # Do not modify this method!
   def clean(self):
     cleaned_data = super(RegistrationForm, self).clean()
     return cleaned_data
 
+  # Do per-field validation in their respective method!
   def clean_username(self):
     cleaned_data = super(RegistrationForm, self).clean()
     username = cleaned_data.get("username")

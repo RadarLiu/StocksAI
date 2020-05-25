@@ -37,13 +37,14 @@ def logWarning(s):
 def logError(s):
   logger.info("ERROR: %s: %s" % (dt.now().strftime("'%Y-%m-%d' %H:%M:%S"), s))
 
-
+@login_required
 def index(request):
   r = refresh_stock_prices()
   if r is None:
     return HttpResponse("Hello, world. You're at the index.")
   else:
     return r
+  # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO: Change this to user profile.
 
 
 # Execute upon loading homepage if data looks stale.
@@ -199,7 +200,6 @@ def register(request):
   return redirect(reverse("login"))
 
 
-@login_required
-def logout(request):
-  logout(request)
-  return redirect(reverse("login"))
+# def logout(request):
+#   logout(request)
+#   return redirect(reverse("login"))
