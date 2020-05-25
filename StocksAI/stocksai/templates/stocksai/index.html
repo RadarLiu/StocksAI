@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register &middot; StocksAI</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+  {% load static %}
+  <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+</head>
+
+<body>
+  <!-- Basid user info -->
+  
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-6">
+        Name:
+      </div>
+      <div class="col-sm-6">
+        {{ first_name }} &nbsp; {{ last_name }}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-6">
+        Account Since:
+      </div>
+      <div class="col-sm-6">
+        {{ registration_date }}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-6">
+        Email:
+      </div>
+      <div class="col-sm-6">
+        {{ email }}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-6">
+        Cash (USD):
+      </div>
+      <div class="col-sm-6">
+        {{ cash_usd }}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-6">
+        Total Wealth (USD):
+      </div>
+      <div class="col-sm-6">
+        {{ total_wealth }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Stock holding info-->
+  <div class="container">
+    <table>
+
+</body>
+
+<!--a href="{% url 'login' %}" class="btn btn-success">Cancel</a-->

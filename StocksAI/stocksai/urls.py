@@ -13,6 +13,6 @@ urlpatterns = [
   path('register/', views.register, name='register'),
   path('login/', LoginView.as_view(template_name='stocksai/login.html'), name='login'),
   path('logout/', LogoutView.as_view(template_name='stocksai/logout.html'), name='logout'),
-  path('clear_all_stock_prices/', views.clear_all_stock_prices, name='clear_all_stock_prices'),  # dev only
+  #path('clear_all_stock_prices/', views.clear_all_stock_prices, name='clear_all_stock_prices'),  # dev only
   #url(r'^.*', views.handler, name='handler'),
 ]

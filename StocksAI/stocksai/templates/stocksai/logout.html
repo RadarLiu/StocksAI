@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+  <meta charset="utf-8">
+  <title>Signed out &middot; StocksAI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link href="../static/bootstrap/css/bootstrap.css" rel="stylesheet">
+  <style type="text/css">
+  body {
+    {% load static %}
+    background: url("{% static 'images/login_2.png' %}");
+    background-size: 100%;
+    opacity: 96%;
+  }
+
+  .signout {
+    max-width: 400px;
+    padding: 19px 29px 29px;
+    margin: 0 auto 20px;
+    background-color: #fff;
+    border: 1px solid #e5e5e5;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+    -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+  }
+  </style>
+</head>
+
+<body>
+  <br><br><br><br><br><br>
+  <div class="container">
+    <div class="signout">
+      <p> You have successfully signed out. </p>
+      <a href="{% url 'login' %}"> Sign in </a>
+    </div>
+  </div>
+</body>
+
+</html>

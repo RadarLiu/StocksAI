@@ -15,8 +15,9 @@ from django.urls import reverse
 from django.template import loader
 from datetime import date
 from datetime import datetime as dt
-from .models import StockCode, StockPrice, ServerState, Profile
+from .models import StockCode, StockPrice, ServerState, Profile, Holding
 from .forms import *
+from operator import itemgetter
 
 class ServerStateCache:
   last_update_date = date(2018, 12, 31)
@@ -37,14 +38,68 @@ def logWarning(s):
 def logError(s):
   logger.info("ERROR: %s: %s" % (dt.now().strftime("'%Y-%m-%d' %H:%M:%S"), s))
 
+
+# Helper function to get the latest stock price from local DB.
+# Used for showing estimated earning.
+# Do NOT use for purchasing (use the yfinance API instead).
+def get_latest_stock_price(code=""):
+  if code == "":
+    return 0
+  d = date(2018, 12, 31)
+  price = 0.0
+  prices = StockPrice.objects.filter(code__code=code)  # Filter by the "code" field of Foreign key "code".
+  for p in prices:
+    if p.date > d:
+      d = p.date
+      price = p.price
+  return price
+
+
+# Home page after use login.
 @login_required
 def index(request):
   r = refresh_stock_prices()
-  if r is None:
-    return HttpResponse("Hello, world. You're at the index.")
-  else:
-    return r
-  # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO: Change this to user profile.
+
+  # Hide data update info.
+  # if r is None:
+  #   return HttpResponse("Hello, world. You're at the index.")
+  # else:
+  #   return r
+
+  # Default: GET
+  context = {}
+  user = request.user
+
+  # Basic info
+  context["first_name"] = user.first_name
+  context["last_name"] = user.last_name
+  context["email"] = user.email
+  profile = get_object_or_404(Profile, user__username=user.username)
+  context["registration_date"] = profile.registration_date
+  context["cash_usd"] = profile.cash_usd
+
+  # Stocks holding info: basic
+  holdings = Holding.objects.filter(user=user)
+  stock_table = {}  # Map from stock_code_str to a list of holdings
+  for h in holdings:
+    if not h.code.code in stock_table:
+      stock_table[h.code.code] = []  # list of holdings
+    stock_table[h.code.code].append(h.purchase_date, h.purchase_unit_price, h.volume)
+
+  # Stocks holding info: derived
+  total_wealth = 0.0
+  for code in stock_table:
+    stock_table[code] = sorted(stock_table[code], key=itemgetter(0), reverse=True)  # Sort by purchase_date desc.
+    # Get current price
+    current_price = get_latest_stock_price(code)
+    for h in stock_table[code]:
+      stock_table[code].append((current_price - stock_table[code][1]) * stock_table[code][2])  # earning
+      stock_table[code].append((current_price - stock_table[code][1]) / stock_table[code][1])  # earning percentage
+      total_wealth += current_price * stock_table[code][2]
+
+  context["stock_table"] = stock_table  # Tuple format: purchase_price, purchase_unit_price, volume, earning, earning percentage
+  context["total_wealth"] = total_wealth + profile.cash_usd
+  return render(request, "stocksai/index.html", context)
 
 
 # Execute upon loading homepage if data looks stale.
@@ -110,9 +165,10 @@ def save_prices(data=None, stock_code=None):
 
 
 # Dev only
-def clear_all_stock_prices(request):
-  StockPrice.objects.all().delete()
-  return HttpResponse("All stock prices deleted.")
+# def clear_all_stock_prices(request):
+#   StockPrice.objects.all().delete()
+#   return HttpResponse("All stock prices deleted.")
+
 
 @transaction.atomic
 def edit_company(request):
@@ -136,11 +192,8 @@ def edit_company(request):
           add_err = "No data available for company code: %s" % code
         else:
           stock_code = StockCode(code=code, industry=industry)
-          #try:
           stock_code.save()
           save_prices(data=data, stock_code=stock_code)
-          #except Exception as e:
-          #  add_err = "Adding failed: %s" % str(e)
     else:
       add_err = "Invalid Company Code!"
 
@@ -198,8 +251,3 @@ def register(request):
   profile = Profile(user=user, registration_date=date.today(), cash_usd = 10000.00)
   profile.save()
   return redirect(reverse("login"))
-
-
-# def logout(request):
-#   logout(request)
-#   return redirect(reverse("login"))

@@ -148,7 +148,7 @@ STATIC_URL = '/static/'
 # EMAIL_USE_SSL = True
 
 # The default login redirect url is 'accounts/profile/'
-LOGIN_REDIRECT_URL = 'profile/'
+LOGIN_REDIRECT_URL = '/'
 
 # The default login url is 'accounts/login/'
 LOGIN_URL = 'login/'

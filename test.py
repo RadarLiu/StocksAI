@@ -1,10 +1,10 @@
 import yfinance as yf
 
-msft = yf.Ticker("MSFT")
+#msft = yf.Ticker("MSFT")
 goog = yf.Ticker("GOOG")
 
 # get stock info
-# print(msft.info)
+print(goog.info["regularMarketPrice"])
 
 # # get historical market data
 #hist = goog.history(period="1mo", interval="1d")
@@ -19,15 +19,19 @@ goog = yf.Ticker("GOOG")
 
 
 
-data = yf.download("MSFT GOOG", start="2020-01-01", end="2020-04-30")
-print(type(data))
-print(data)  # pandas.core.frame.DataFrame
-print(data.loc[:, "Close"].loc[:, "GOOG"])
-print(type(data.loc[:, "Close"].loc[:, "GOOG"]))  # pandas.core.series.Series
-#for d, price in data.loc[:, "Close"].loc[:, "GOOG"].iteritems():
-#	print(d.to_pydatetime(), type(d.to_pydatetime()), price, type(price))  # datetime.datetime  and  float
-for d, price in data.loc[:, "Open"].loc[:, "GOOG"].iteritems():
-	print(d.to_pydatetime(), data.loc[:, "Open"].loc[:, "GOOG"].loc[d], data.loc[:, "Close"].loc[:, "GOOG"].loc[d])  # datetime.datetime  and  float
+# data = yf.download("MSFT GOOG", start="2020-01-01", end="2020-04-30")
+# print(type(data))
+# print(data)  # pandas.core.frame.DataFrame
+# print(data.loc[:, "Close"].loc[:, "GOOG"])
+# print(type(data.loc[:, "Close"].loc[:, "GOOG"]))  # pandas.core.series.Series
+# #for d, price in data.loc[:, "Close"].loc[:, "GOOG"].iteritems():
+# #  print(d.to_pydatetime(), type(d.to_pydatetime()), price, type(price))  # datetime.datetime  and  float
+# for d, price in data.loc[:, "Open"].loc[:, "GOOG"].iteritems():
+#   print(d.to_pydatetime(), data.loc[:, "Open"].loc[:, "GOOG"].loc[d], data.loc[:, "Close"].loc[:, "GOOG"].loc[d])  # datetime.datetime  and  float
+
+#data = yf.download("GOOG MSFT", start="2019-12-31", end="2020-05-17")
+#print (data)
+
 
 
 
