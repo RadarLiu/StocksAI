@@ -255,3 +255,8 @@ def register(request):
   profile = Profile(user=user, registration_date=date.today(), cash_usd = 10000.00)
   profile.save()
   return redirect(reverse("login"))
+
+
+@login_required
+def sell(request):
+  return HttpResponse("Sell page")

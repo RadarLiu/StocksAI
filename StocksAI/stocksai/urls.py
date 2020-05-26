@@ -10,6 +10,7 @@ urlpatterns = [
   path('edit_company/', views.edit_company, name='edit_company'),  # admin only.
   path('add_company/', views.edit_company, name='add_company'),  # admin only.
   path('delete_company/', views.edit_company, name='delete_company'),  # admin only.
+  path('sell/', views.sell, name='sell'),
   path('register/', views.register, name='register'),
   path('login/', LoginView.as_view(template_name='stocksai/login.html'), name='login'),
   path('logout/', LogoutView.as_view(template_name='stocksai/logout.html'), name='logout'),

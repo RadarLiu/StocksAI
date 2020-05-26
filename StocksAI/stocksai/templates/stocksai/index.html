@@ -75,6 +75,7 @@
           <th scope="col">Number of Stocks</th>
           <th scope="col">Earning (USD)</th>
           <th scope="col">Earning Percentage</th>
+          <th scope="col"></th>  <!-- Sell Button -->
         </tr>
       </thead>
       <tbody>
@@ -85,6 +86,14 @@
             {% for t in list %}
             <td> {{ t }} </td>
             {% endfor %}
+            <td>
+              <form method="POST" action="{% url 'sell' %}" class="inline">
+                {% csrf_token %}
+                <input type="hidden" name="code" value={{code}}>
+                <!-- TODO: Add more!!!-->
+                <button type="submit" name="sell_btn" class="btn btn-primary"> Sell </button>
+              </form>
+            </td>
           {% endfor %}
           </tr>
         {% endfor %}
