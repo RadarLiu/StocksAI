@@ -76,15 +76,17 @@ def index(request):
   context["email"] = user.email
   profile = get_object_or_404(Profile, user__username=user.username)
   context["registration_date"] = profile.registration_date
-  context["cash_usd"] = profile.cash_usd
+  context["cash_usd"] = "$" + str(round(profile.cash_usd, 2))
 
   # Stocks holding info: basic
   holdings = Holding.objects.filter(user=user)
   stock_table = {}  # Map from stock_code_str to a list of holdings
   for h in holdings:
-    if not h.code.code in stock_table:
-      stock_table[h.code.code] = []  # list of holdings
-    stock_table[h.code.code].append(h.purchase_date, h.purchase_unit_price, h.volume)
+    code = h.code.code
+    if not code in stock_table:
+      stock_table[code] = []  # list of holdings
+    info = [h.purchase_date, h.purchase_unit_price, h.volume]
+    stock_table[code].append(info)
 
   # Stocks holding info: derived
   total_wealth = 0.0
@@ -92,13 +94,15 @@ def index(request):
     stock_table[code] = sorted(stock_table[code], key=itemgetter(0), reverse=True)  # Sort by purchase_date desc.
     # Get current price
     current_price = get_latest_stock_price(code)
-    for h in stock_table[code]:
-      stock_table[code].append((current_price - stock_table[code][1]) * stock_table[code][2])  # earning
-      stock_table[code].append((current_price - stock_table[code][1]) / stock_table[code][1])  # earning percentage
-      total_wealth += current_price * stock_table[code][2]
+    for info in stock_table[code]:
+      info.append("$" + str(round((current_price - info[1]) * info[2], 2)))  # earning
+      info.append(str(round((current_price - info[1]) / info[1] * 100, 2)) + "%")  # earning percentage
+      total_wealth += current_price * info[2]
+      info[1] = "$" + str(round(info[1], 2))  # format: purchase _unit_price
+      info[2] = str(round(info[2], 3))  # format: volume
 
-  context["stock_table"] = stock_table  # Tuple format: purchase_price, purchase_unit_price, volume, earning, earning percentage
-  context["total_wealth"] = total_wealth + profile.cash_usd
+  context["stock_table"] = stock_table  # info format: purchase_date, purchase_unit_price, volume, earning, earning percentage
+  context["total_wealth"] = "$" + str(round(total_wealth + profile.cash_usd, 2))
   return render(request, "stocksai/index.html", context)
 
 

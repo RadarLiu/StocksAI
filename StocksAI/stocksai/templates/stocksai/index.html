@@ -15,53 +15,82 @@
 
 <body>
   <!-- Basid user info -->
-  
   <div class="container">
     <div class="row">
-      <div class="col-sm-6">
-        Name:
+      <div class="container border col-sm-6">
+        <div class="row">
+          <div class="col-sm-4">
+            Name:
+          </div>
+          <div class="col-sm-3">
+            {{ first_name }} &nbsp; {{ last_name }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-4">
+            Account Since:
+          </div>
+          <div class="col-sm-3">
+            {{ registration_date }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-4">
+            Email:
+          </div>
+          <div class="col-sm-3">
+            {{ email }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-4">
+            Cash (USD):
+          </div>
+          <div class="col-sm-3">
+            {{ cash_usd }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-4">
+            Total Wealth (USD):
+          </div>
+          <div class="col-sm-3">
+            {{ total_wealth }}
+          </div>
+        </div>
       </div>
-      <div class="col-sm-6">
-        {{ first_name }} &nbsp; {{ last_name }}
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-sm-6">
-        Account Since:
-      </div>
-      <div class="col-sm-6">
-        {{ registration_date }}
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-sm-6">
-        Email:
-      </div>
-      <div class="col-sm-6">
-        {{ email }}
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-sm-6">
-        Cash (USD):
-      </div>
-      <div class="col-sm-6">
-        {{ cash_usd }}
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-sm-6">
-        Total Wealth (USD):
-      </div>
-      <div class="col-sm-6">
-        {{ total_wealth }}
-      </div>
+      <div class="col-sm-5"></div>  <!-- horizontal position holder-->
     </div>
   </div>
 
+  <br><br>
   <!-- Stock holding info-->
   <div class="container">
-    <table>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Stock Code</th>
+          <th scope="col">Purchase Date</th>
+          <th scope="col">Purchase Unit Price</th>
+          <th scope="col">Number of Stocks</th>
+          <th scope="col">Earning (USD)</th>
+          <th scope="col">Earning Percentage</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for code, items in stock_table.items %}
+          {% for list in items %}
+          <tr>
+            <th scope="row"> {{ code }} </th>
+            {% for t in list %}
+            <td> {{ t }} </td>
+            {% endfor %}
+          {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
 </body>
 
