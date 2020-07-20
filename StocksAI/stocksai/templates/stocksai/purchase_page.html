@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register &middot; StocksAI</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+  {% load static %}
+  <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+</head>
+
+<body>
+  <!-- user info -->
+  <div class="container">
+    <div class="row">
+      <div class="container border col-sm-8">
+        <div class="row">
+          <div class="col-sm-4">
+            Available Cash:
+          </div>
+          <div class="col-sm-4">
+            {{ cash_usd }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <br><br>
+  <!-- Stock holding info-->
+  <div class="container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Stock Code</th>
+          <th scope="col">Current Unit Price</th>
+          <th scope="col">Number of Stocks to Buy</th>
+          <th scope="col"></th>  <!-- Buy Button -->
+        </tr>
+      </thead>
+      <tbody>
+        {% for code, price in stock_table.items %}
+          <tr>
+            <th scope="row"> {{ code }} </th>
+            <td> {{ price }} </td>
+            <form method="POST" action="{% url 'purchase' %}" class="inline">
+              {% csrf_token %}
+              <input type="hidden" name="code" value={{code}}>
+              <td> <input type="text" name="number_of_stocks_to_purchase" value=""> </td>
+              <td> <button type="submit" name="purchase_btn" class="btn btn-warning"> Purchase </button> </td>
+            </form>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</body>
+
+<!--a href="{% url 'login' %}" class="btn btn-success">Cancel</a-->
