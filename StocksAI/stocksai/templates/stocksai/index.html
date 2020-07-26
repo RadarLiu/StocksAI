@@ -11,6 +11,22 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
   {% load static %}
   <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+  <style>
+  .big_purchase_btn {
+    padding: 15px 32px;
+    text-align: center;
+    width: 260px;
+    height: 130px;
+    display: inline-block;
+    font-size: 25px;
+    margin: 4px 2px;
+  }
+  .flat_btn {
+    width: 100px;
+    height: 32px;
+    font-size: 16px;
+  }
+  </style>
 </head>
 
 <body>
@@ -22,8 +38,8 @@
           <div class="col-sm-4">
             Name:
           </div>
-          <div class="col-sm-3">
-            {{ first_name }} &nbsp; {{ last_name }}
+          <div class="col-sm-6">
+            {{ first_name }} {{ last_name }}
           </div>
         </div>
         <div class="row">
@@ -58,8 +74,16 @@
             {{ total_wealth }}
           </div>
         </div>
+        <div class="row">
+          <div class="col-sm-4">
+            <button type="submit" onclick="location.href='{% url 'edit_user_info' %}'" name="edit_info_btn" class="btn btn-info flat_btn">Edit Info</button>
+          </div>
+        </div>
+        <div class="row"></div>
       </div>
-      <div class="col-sm-5"></div>  <!-- horizontal position holder-->
+      <div class="col-sm-5">
+        <button type="submit" onclick="location.href='{% url 'purchase_page' %}'" name="purchage_page_btn" class="btn btn-primary big_purchase_btn">Purchase Stocks</button>
+      </div>
     </div>
   </div>
 

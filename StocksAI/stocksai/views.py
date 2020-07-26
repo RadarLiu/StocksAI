@@ -237,7 +237,7 @@ def register(request):
   if not form.is_valid():
     return render(request, "stocksai/register.html", context)
 
-  # Corss-field validations that cannot be done in Django form.
+  # Cross-field validations that cannot be done in Django form.
   if form.cleaned_data["password"] != form.cleaned_data["password_repeat"]:
     context["t_errors"] = "Passwords did not match!"
     return render(request, "stocksai/register.html", context)
@@ -258,5 +258,70 @@ def register(request):
 
 
 @login_required
+@transaction.atomic
+def edit_user_info(request):
+  context = {}
+  user = request.user
+
+  if request.method == "GET":
+    data = {
+      "old_password": "******",
+      "password": "******",
+      "password_repeat": "******",
+      "first_name": user.first_name,
+      "last_name": user.last_name,
+      "email": user.email,
+    }
+    context["form"] = EditUserInfoForm(data)
+    context["username"] = user.username
+    return render(request, "stocksai/edit_user_info.html", context)
+
+  form = EditUserInfoForm(request.POST)
+  context["form"] = form
+  if not form.is_valid():
+    return render(request, "stocksai/edit_user_info.html", context)
+
+  if len(form.cleaned_data["password"]) > 0 and form.cleaned_data["password"] != form.cleaned_data["password_repeat"]:
+    context["t_errors"] = "Passwords did not match!"
+    return render(request, "stocksai/edit_user_info.html", context)
+
+  if not user.check_password(form.cleaned_data["old_password"]):
+    context["t_errors"] = "Invalid old password!"
+    return render(request, "stocksai/edit_user_info.html", context)
+
+  user.first_name = form.cleaned_data["first_name"]
+  user.last_name = form.cleaned_data["last_name"]
+  user.email = form.cleaned_data["email"]
+  if len(form.cleaned_data["password"]) > 0:
+    user.set_password(form.cleaned_data["password"])
+  user.save()
+  context["form"] = form
+  context["username"] = user.username
+  context["info"] = "Info Updated!"
+  return render(request, "stocksai/edit_user_info.html", context)
+
+
+@login_required
 def sell(request):
   return HttpResponse("Sell page")
+
+@login_required
+def purchase(request):
+  context = {}
+  profile = get_object_or_404(Profile, user__username=request.user.username)
+
+  if request.method == "GET":
+    context["cash_usd"] = "$" + str(round(profile.cash_usd, 2))
+    
+    stock_table = {}  # Map from stock_code_str to prices
+    for i in StockCode.objects.all():
+      stock_table[i.code] = yf.Ticker(i.code).info["regularMarketPrice"]  # real-time price
+    context["stock_table"] = stock_table
+
+    # TODO: implement a cache for "real-time price, allow 10-minute delay"
+
+    return render(request, "stocksai/purchase_page.html", context)
+
+
+
+  return HttpResponse("Buy POST request")
