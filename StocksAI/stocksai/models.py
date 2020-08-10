@@ -16,7 +16,7 @@ class StockCode(models.Model):
   def __str__(self):
     return self.code + " | " + self.industry
 
-
+# Historical data, do not use for real-time trade.
 class StockPrice(models.Model):
   code = models.ForeignKey(StockCode, on_delete=models.CASCADE)
   date = models.DateField()
@@ -27,6 +27,12 @@ class StockPrice(models.Model):
 
   def __str__(self):
     return str(self.code) + " | " + str(self.date) + " | " + str(self.price)
+
+# Price data for real-time trade.
+class PriceCache(models.Model):
+  code = models.ForeignKey(StockCode, on_delete=models.CASCADE)
+  price = models.FloatField(default=0)  # Latest price.
+  last_update_second = models.FloatField(default=0)  # Timestamp indicating the freshness of the latest price data.
 
 
 # User's metadata not included in Django's default User class.

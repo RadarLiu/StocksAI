@@ -15,9 +15,10 @@ from django.urls import reverse
 from django.template import loader
 from datetime import date
 from datetime import datetime as dt
-from .models import StockCode, StockPrice, ServerState, Profile, Holding
+from .models import *
 from .forms import *
 from operator import itemgetter
+from time import time
 
 class ServerStateCache:
   last_update_date = date(2018, 12, 31)
@@ -26,6 +27,9 @@ class ServerStateCache:
     pass  # Do not access DB here, may result in table not found error upon starting.
 
 server_state_cache = ServerStateCache()
+
+price_cache = dict()
+price_refreshed_time_sec = time()
 
 # See settings.py: "name of logger"
 logger = logging.getLogger("stocksai")
@@ -312,16 +316,23 @@ def purchase(request):
 
   if request.method == "GET":
     context["cash_usd"] = "$" + str(round(profile.cash_usd, 2))
-    
-    stock_table = {}  # Map from stock_code_str to prices
-    for i in StockCode.objects.all():
-      stock_table[i.code] = yf.Ticker(i.code).info["regularMarketPrice"]  # real-time price
-    context["stock_table"] = stock_table
 
-    # TODO: implement a cache for "real-time price, allow 10-minute delay"
+    stock_table = {}
+    for i in StockCode.objects.all():
+      latest_price = None
+      try:
+        latest_price = PriceCache.objects.get(code=i)
+      except PriceCache.DoesNotExist:
+        latest_price = PriceCache(code=i, last_update_second=0)
+      if time() - latest_price.last_update_second > 10 * 60:
+        latest_price.price = yf.Ticker(i.code).info["regularMarketPrice"]  # real-time prices
+        latest_price.last_update_second = time()
+        latest_price.save()
+      stock_table[i.code] = latest_price.price
+    context["stock_table"] = stock_table
 
     return render(request, "stocksai/purchase_page.html", context)
 
 
 
-  return HttpResponse("Buy POST request")
+  return HttpResponse(request.POST["code"])
